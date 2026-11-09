@@ -1,3 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Django
 *.sqlite3
-*/__pycache__
+/staticfiles/
+/media/
 .env
+
+# Ferramentas
+docs/diagramas/plantuml.jar
+.vscode/
+.idea/
+.DS_Store
