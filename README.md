@@ -1,317 +1,127 @@
-# MSN Clone - Sistema de Chat em Tempo Real
+# MSN Clone
 
-## 📋 Sobre o Projeto
+A web chat inspired by the classic MSN Messenger, built with Django. Add friends, see who is online and exchange messages that update without reloading the page.
 
-O MSN Clone é uma aplicação web moderna desenvolvida em Django que replica as funcionalidades clássicas do MSN Messenger. O sistema implementa um chat em tempo real com recursos avançados de gerenciamento de amizades, status online/offline e interface responsiva.
+<!-- Add a screenshot of the chat screen and one of the contact list here.
+<p align="center"><img src="docs/chat.png" width="720"/></p>
+-->
 
-## 🚀 Funcionalidades
+## Features
 
-### ✅ Implementadas
+- **Accounts:** registration, login and logout with Django's authentication.
+- **Friendships:** send a friend request, accept or decline it, remove a contact, block and unblock.
+- **Chat:** one conversation per pair of friends. Messages are sent with AJAX and the conversation polls for new ones every 2 seconds.
+- **Edit and delete:** you can edit or delete your own messages, also without a page reload.
+- **Presence:** a custom middleware records each user's last activity; anyone active in the last 5 minutes is shown as online.
+- **Search and pagination:** filter the user list and your conversations (`django-filter`), with paginated results.
+- **Built-in documentation:** a page inside the app shows the UML diagrams of the system.
 
-- **Autenticação de Usuários**
-  - Sistema de registro e login
-  - Gerenciamento de sessões
-  - Middleware de atividade
+## Tech stack
 
-- **Sistema de Amizades**
-  - Envio de solicitações de amizade
-  - Aceitar/recusar pedidos
-  - Gerenciamento de contatos
+| | |
+|---|---|
+| Backend | Python 3.13, Django 5.2 |
+| Database | SQLite in development, PostgreSQL through `DATABASE_URL` |
+| Frontend | Django templates, Bootstrap 5, Font Awesome, JavaScript (AJAX) |
+| Forms and filters | django-crispy-forms, django-filter |
+| Configuration | python-decouple, dj-database-url |
+| Production server | gunicorn |
 
-- **Chat em Tempo Real**
-  - Mensagens instantâneas via AJAX
-  - Polling automático (2 segundos)
-  - Interface não-bloqueante
+## Project layout
 
-- **Status de Usuários**
-  - Indicadores online/offline
-  - Rastreamento de última atividade
-  - Atualização automática via middleware
-
-- **Interface Responsiva**
-  - Design Bootstrap 5
-  - Ícones FontAwesome
-  - Experiência mobile-friendly
-
-## 🛠 Stack Tecnológico
-
-### Backend
-- **Django 5.x** - Framework web
-- **SQLite** - Banco de dados
-- **Python 3.13** - Linguagem de programação
-- **Middleware Personalizado** - Controle de atividade
-
-### Frontend
-- **Bootstrap 5** - Framework CSS
-- **JavaScript/AJAX** - Interatividade
-- **FontAwesome** - Ícones
-- **HTML5/CSS3** - Estrutura e estilo
-
-## 🏗 Arquitetura do Sistema
-
-### Estrutura de Apps
 ```
-msnclone/
-├── core/           # App principal com funcionalidades do chat
-├── usuarios/       # App de autenticação
-├── templates/      # Templates HTML
-├── static/         # Arquivos estáticos
-└── media/         # Upload de arquivos
+manage.py
+msnclone/          # project settings, root URLs, WSGI/ASGI
+core/              # chat: models, views, filters, presence middleware
+usuarios/          # registration and login
+templates/         # HTML templates
+static/            # static assets, including the rendered diagrams
+docs/diagramas/    # PlantUML sources
+requirements.txt
 ```
 
-### Modelos Principais
+### Models
 
-- **Perfil**: Extensão do User do Django com controle de atividade
-- **Contato**: Gerenciamento de relacionamentos entre usuários
-- **Conversa**: Agregador de mensagens entre usuários
-- **Mensagem**: Conteúdo das conversas
-- **Status**: Estados dos usuários
-- **Emoticon**: Recursos de expressão
+| Model | Purpose |
+|---|---|
+| `Perfil` | Extends Django's `User` with last-activity tracking |
+| `Contato` | Friendship between two users: pending, accepted, blocked |
+| `Conversa` | A conversation between two users |
+| `Mensagem` | A message inside a conversation |
+| `Status` | User status options |
+| `Emoticon` | Emoticon catalog |
 
-## 📊 Documentação Técnica
+## Running locally
 
-### Diagramas UML
+Requires Python 3.13.
 
-O projeto inclui documentação completa em PlantUML:
-
-1. **Diagrama de Casos de Uso** (`uso_caso_msn.puml`)
-   - Atores do sistema
-   - Funcionalidades principais
-   - Fluxos de interação
-
-2. **Diagrama de Classes** (`diagrama_classes_msn.puml`)
-   - Estrutura de models
-   - Relacionamentos
-   - Views e middleware
-
-### Gerando Diagramas
-
-```bash
-# Executar script automatizado
-./gerar_diagramas.sh
-
-# Ou manualmente com PlantUML
-java -jar plantuml.jar -tpng uso_caso_msn.puml
-java -jar plantuml.jar -tpng diagrama_classes_msn.puml
-```
-
-### Visualização Online
-Acesse [PlantUML Online](http://www.plantuml.com/plantuml/uml/) e cole o conteúdo dos arquivos `.puml`.
-
-## 🚀 Instalação e Execução
-
-### Pré-requisitos
-- Python 3.8+
-- pip
-- virtualenv (recomendado)
-
-### Configuração do Ambiente
-
-1. **Clone o repositório**
 ```bash
 git clone <repository-url>
-cd MSNCLONE/msnclone
-```
+cd <repository-folder>
 
-2. **Crie e ative o ambiente virtual**
-```bash
-python -m venv msnc
-source msnc/bin/activate  # Linux/Mac
-# msnc\Scripts\activate   # Windows
-```
-
-3. **Instale as dependências**
-```bash
+python -m venv .venv
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-4. **Configure o banco de dados**
+Create a `.env` file in the project root. `DATABASE_URL` is required:
+
+```env
+DATABASE_URL=sqlite:///db.sqlite3
+```
+
+Then set up the database and start the server:
+
 ```bash
-python manage.py makemigrations
 python manage.py migrate
-```
-
-5. **Crie um superusuário**
-```bash
-python manage.py createsuperuser
-```
-
-6. **Colete arquivos estáticos**
-```bash
-python manage.py collectstatic
-```
-
-7. **Execute o servidor**
-```bash
+python manage.py createsuperuser   # optional, for /admin/
 python manage.py runserver
 ```
 
-## 🔧 Configuração
+Open http://localhost:8000, register two accounts (one in a private window) and add each other to try the chat.
 
-### Variáveis de Ambiente
-Crie um arquivo `.env` na raiz do projeto:
+## Main routes
 
-```env
-SECRET_KEY=sua-secret-key-aqui
-DEBUG=True
-ALLOWED_HOSTS=localhost,127.0.0.1
-```
+| Route | What it is |
+|---|---|
+| `/` | Home |
+| `/contas/registrar/`, `/contas/login/` | Registration and login |
+| `/usuarios/` | User list, with search |
+| `/meus-contatos/` | Your contacts and pending requests |
+| `/conversas/` | Your conversations |
+| `/chat/<id>/` | Chat screen |
+| `/buscar-mensagens/<id>/` | AJAX endpoint polled for new messages |
+| `/documentacao/` | UML diagrams |
+| `/admin/` | Django admin |
 
-### Settings Importantes
+## UML diagrams
 
-- **MIDDLEWARE**: Inclui `UsuarioOnlineMiddleware` para rastreamento
-- **STATIC_URL**: Configurado para servir arquivos estáticos
-- **LOGIN_URL**: Redirecionamento para autenticação
-
-## 📱 Como Usar
-
-### Para Usuários
-
-1. **Registro**: Crie uma conta na página de registro
-2. **Login**: Acesse com suas credenciais
-3. **Encontrar Amigos**: Navegue pela lista de usuários
-4. **Adicionar Contatos**: Envie solicitações de amizade
-5. **Chat**: Inicie conversas com seus contatos
-
-### Funcionalidades do Chat
-
-- **Mensagens em Tempo Real**: Atualizações automáticas a cada 2 segundos
-- **Status Visual**: Indicadores online/offline em tempo real
-- **Interface Intuitiva**: Design similar ao MSN clássico
-
-## 🧪 Testes
+The use-case and class diagrams are written in PlantUML and live in `docs/diagramas/`. To regenerate the images:
 
 ```bash
-# Executar todos os testes
-python manage.py test
-
-# Testes específicos de uma app
-python manage.py test core
-python manage.py test usuarios
+./docs/diagramas/gerar.sh
 ```
 
-## 📈 Monitoramento
+This needs the `plantuml` command, or Java with `plantuml.jar` in that folder.
 
-### Logs
-O sistema registra automaticamente:
-- Atividade dos usuários
-- Erros de aplicação
-- Acessos e autenticação
+## Design notes
 
-### Performance
-- Polling AJAX otimizado
-- Queries de banco eficientes
-- Cache de sessão ativado
+- **Polling instead of WebSockets.** New messages are fetched every 2 seconds. It is simple and works on any host; the trade-off is latency and extra requests. Moving to Django Channels is the first item on the roadmap.
+- **Presence without extra infrastructure.** Online status is derived from a timestamp updated by middleware on each authenticated request, so there is no background worker or cache to operate.
 
-## 🔒 Segurança
+## Roadmap
 
-### Medidas Implementadas
-- Proteção CSRF habilitada
-- Autenticação obrigatória para funcionalidades principais
-- Validação de formulários
-- Sanitização de dados de entrada
+- [ ] Automated tests for models and views
+- [ ] WebSockets (Django Channels) in place of polling
+- [ ] Read `SECRET_KEY` and `DEBUG` from the environment
+- [ ] Group chat
+- [ ] Custom emoticons in messages
+- [ ] File upload
 
-## 🚀 Deployment
+## Background
 
-### Configurações de Produção
+Built as coursework for the Software Engineering degree at IFPR (Instituto Federal do Paraná). The interface is in Portuguese.
 
-1. **Configure DEBUG=False**
-2. **Defina ALLOWED_HOSTS adequadamente**
-3. **Use banco de dados PostgreSQL/MySQL**
-4. **Configure servidor web (nginx/Apache)**
-5. **Implemente HTTPS**
+## License
 
-### Docker (Opcional)
-
-```dockerfile
-# Dockerfile incluído no projeto
-docker build -t msnclone .
-docker run -p 8000:8000 msnclone
-```
-
-## 📚 API Endpoints
-
-### Principais URLs
-
-- `/` - Homepage
-- `/usuarios/` - Lista de usuários
-- `/chat/<id>/` - Interface de chat
-- `/api/mensagens/` - Endpoint AJAX para mensagens
-- `/documentacao/` - Documentação técnica
-
-## 🤝 Contribuição
-
-### Como Contribuir
-
-1. Fork o projeto
-2. Crie uma branch (`git checkout -b feature/nova-funcionalidade`)
-3. Commit suas mudanças (`git commit -am 'Adiciona nova funcionalidade'`)
-4. Push para a branch (`git push origin feature/nova-funcionalidade`)
-5. Abra um Pull Request
-
-### Guidelines
-
-- Siga o padrão PEP 8 para Python
-- Documente novas funcionalidades
-- Inclua testes para código novo
-- Mantenha a compatibilidade com versões anteriores
-
-## 📞 Suporte
-
-### Problemas Comuns
-
-**Erro de Migração**
-```bash
-python manage.py migrate --fake-initial
-```
-
-**Arquivos Estáticos não Carregam**
-```bash
-python manage.py collectstatic --clear
-```
-
-**Problema de Permissões**
-```bash
-chmod +x gerar_diagramas.sh
-```
-
-## 📝 Changelog
-
-### v1.0.0
-- Sistema de autenticação completo
-- Chat em tempo real via AJAX
-- Gerenciamento de amizades
-- Status online/offline
-- Interface responsiva
-- Documentação técnica completa
-
-## 📄 Licença
-
-Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
-
-## 👥 Autores
-
-- **Desenvolvedor Principal** - Implementação completa do sistema
-
-## 🎯 Roadmap
-
-### Próximas Funcionalidades
-- [ ] WebSocket para chat real-time
-- [ ] Suporte a emoticons personalizados
-- [ ] Chat em grupo
-- [ ] Notificações push
-- [ ] Histórico de mensagens
-- [ ] Upload de arquivos
-- [ ] Videochamadas (futuro)
-
-## 📊 Estatísticas do Projeto
-
-- **6 Models** Django
-- **15+ Views** implementadas
-- **20+ Templates** responsivos
-- **2 Apps** principais
-- **100% Funcional** - Todas as funcionalidades testadas
-
----
-
-**MSN Clone** - Revivendo a experiência clássica do MSN Messenger com tecnologias modernas! 🚀
+<!-- The original README mentions MIT, but the repository has no LICENSE file. Add one. -->
